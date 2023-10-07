@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { UserService } from '../user/user.service';
-import { IStatistics } from './interface/statistics.interface';
+// import { IStatistics } from './interface/statistics.interface';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class StatisticsService {
-  constructor(private readonly prisma: PrismaService, private readonly userService: UserService) {
+  constructor(private readonly prismaService: PrismaService, private readonly userService: UserService) {
   }
 
   /**
@@ -13,7 +14,7 @@ export class StatisticsService {
    *
    * @param userId
    */
-  async getStatistics(userId: number): Promise<IStatistics[]> {
+  async getStatistics(userId: number) {
     const user = await this.userService.getById(userId, {
       orders: {
         select: {
@@ -22,6 +23,14 @@ export class StatisticsService {
       },
       reviews: true,
     });
+
+    const query = Prisma.sql`SELECT SUM(oi.price) AS deepSum
+                             FROM order_items oi
+                                      JOIN orders o ON oi.order_id = o.id
+                             WHERE o."userId" = ?`;
+
+    const result = await this.prismaService.$queryRaw(query, [user.id]);
+    const totalAmount = result[0]?.deepsum || 0;
 
     return [
       {
@@ -38,7 +47,7 @@ export class StatisticsService {
       },
       {
         name: 'Total amount',
-        value: 1000,   //TODO: write raw sql query to get total (orders[0].items[0].price)
+        value: totalAmount,
       },
     ];
   }

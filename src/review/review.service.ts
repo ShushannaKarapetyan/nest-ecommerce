@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { ReviewDto } from './dto/review.dto';
 import { returnReviewObject } from './return-review.object';
@@ -31,6 +31,17 @@ export class ReviewService {
    * @param dto
    */
   async create(userId: number, productId: number, dto: ReviewDto): Promise<Review> {
+    const review = await this.prisma.review.findFirst({
+      where: {
+        productId,
+        userId,
+      },
+    });
+
+    if (review) {
+      throw new BadRequestException('Review already exists.');
+    }
+
     return this.prisma.review.create({
       data: {
         ...dto,

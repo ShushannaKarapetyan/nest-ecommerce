@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { Category } from '@prisma/client';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CategoryDto } from './dto/category.dto';
+import { GetCategoryDto } from './dto/get.category.dto';
 
 @Controller('categories')
 export class CategoryController {
@@ -12,7 +13,6 @@ export class CategoryController {
   /**
    * Get all categories
    */
-  @HttpCode(200)
   @Get()
   async getAll() {
     return this.categoryService.getAll();
@@ -22,9 +22,8 @@ export class CategoryController {
    * Get all categories
    */
   @Auth()
-  @HttpCode(200)
   @Get(':id')
-  async getById(@Param('id') id: number): Promise<Category> {
+  async getById(@Param('id') id: string): Promise<GetCategoryDto> {
     return this.categoryService.getById(+id);
   }
 
@@ -35,9 +34,8 @@ export class CategoryController {
    */
   @Auth()
   @UsePipes(new ValidationPipe())
-  @HttpCode(201)
   @Post()
-  async create(@Body() dto: CategoryDto) {
+  async create(@Body() dto: CategoryDto): Promise<Category> {
     return this.categoryService.create(dto);
   }
 
@@ -49,9 +47,8 @@ export class CategoryController {
    */
   @Auth()
   @UsePipes(new ValidationPipe())
-  @HttpCode(200)
   @Put(':id')
-  async update(@Param('id') id: number, @Body() dto: CategoryDto) {
+  async update(@Param('id') id: string, @Body() dto: CategoryDto): Promise<Category> {
     return this.categoryService.update(+id, dto);
   }
 
@@ -61,9 +58,8 @@ export class CategoryController {
    * @param id
    */
   @Auth()
-  @HttpCode(200)
   @Delete(':id')
-  async delete(@Param('id') id: number) {
+  async delete(@Param('id') id: string): Promise<Category> {
     return this.categoryService.delete(+id);
   }
 }

@@ -3,10 +3,12 @@ import { PrismaService } from '../prisma.service';
 import { returnProductFullObject, returnProductObject } from './return-product.object';
 import { ProductDto } from './dto/product.dto';
 import { generateSlug } from '../utils/generate-slug';
-import { GetProductsDto } from './dto/get-products.dto';
+import { ProductsFilterDto } from './dto/products.filter.dto';
 import { PaginationService } from '../pagination/pagination.service';
 import { ProductSort } from './enums/product-sort';
 import { Prisma, Product } from '@prisma/client';
+import { GetProductsDto } from './dto/get.products.dto';
+import { SimilarProductsDto } from './dto/similar.products.dto';
 
 @Injectable()
 export class ProductService {
@@ -16,7 +18,7 @@ export class ProductService {
   /**
    * Get all products
    */
-  async getAll(dto: GetProductsDto = {}) {
+  async getAll(dto: ProductsFilterDto = {}): Promise<GetProductsDto> {
     const { sort, searchTerm } = dto;
 
     const prismaSort: Prisma.ProductOrderByWithRelationInput[] = [];
@@ -104,8 +106,6 @@ export class ProductService {
       select: returnProductFullObject,
     });
 
-    console.log(product);
-
     if (!product) {
       throw new NotFoundException('Product not found');
     }
@@ -118,7 +118,7 @@ export class ProductService {
    *
    * @param id
    */
-  async getSimilar(id: number) {
+  async getSimilar(id: number): Promise<SimilarProductsDto[]> {
     const product = await this.getById(id);
 
     if (!product) {

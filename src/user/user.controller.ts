@@ -1,8 +1,9 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Put, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/user.decorator';
 import { UserDto } from './dto/user.dto';
+import { User } from '@prisma/client';
 
 @Controller('users')
 export class UserController {
@@ -17,17 +18,15 @@ export class UserController {
 
   @UsePipes(new ValidationPipe())
   @Auth()
-  @HttpCode(200)
   @Put('profile')
-  async updateProfile(@CurrentUser('id') id: number, @Body() dto: UserDto) {
+  async updateProfile(@CurrentUser('id') id: number, @Body() dto: UserDto): Promise<User> {
     return this.userService.updateProfile(id, dto);
   }
 
   @Auth()
-  @HttpCode(200)
   @Patch('profile/favorites/:productId')
   async toggleFavorite(@Param('productId') productId: string,
-                       @CurrentUser('id') id: number) {
+                       @CurrentUser('id') id: number): Promise<{ message: string }> {
     return this.userService.toggleFavorite(id, +productId);
   }
 }

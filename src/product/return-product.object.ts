@@ -8,8 +8,9 @@ export const returnProductObject: Prisma.ProductSelect = {
   description: true,
   name: true,
   price: true,
-  createdAt: true,
+  quantity: true,
   slug: true,
+  createdAt: true,
 };
 
 export const returnProductFullObject: Prisma.ProductSelect = {

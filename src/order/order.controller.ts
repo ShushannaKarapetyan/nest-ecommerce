@@ -2,6 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CurrentUser } from '../auth/decorators/user.decorator';
+import { Order } from '@prisma/client';
 
 @Controller('orders')
 export class OrderController {
@@ -15,7 +16,7 @@ export class OrderController {
    */
   @Auth()
   @Get()
-  async getAll(@CurrentUser('id') userId: number) {
+  async getAll(@CurrentUser('id') userId: number): Promise<Order[]> {
     return this.orderService.getAll(userId);
   }
 }

@@ -6,13 +6,19 @@ import { hash, verify } from 'argon2';
 import { User } from '@prisma/client';
 import { AuthUtil } from '../utils/auth-util';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { AuthReturnDto } from './dto/auth.return.dto';
 
 @Injectable()
 export class AuthService {
   constructor(private prisma: PrismaService, private authUtil: AuthUtil) {
   }
 
-  async register(dto: AuthDto) {
+  /**
+   * User registration
+   *
+   * @param dto
+   */
+  async register(dto: AuthDto): Promise<AuthReturnDto> {
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
@@ -39,7 +45,12 @@ export class AuthService {
     };
   }
 
-  async login(dto: AuthDto) {
+  /**
+   * User login
+   *
+   * @param dto
+   */
+  async login(dto: AuthDto): Promise<AuthReturnDto> {
     const user = await this.validateUser(dto);
     const tokens = await this.generateTokens(user.id);
 
@@ -49,7 +60,12 @@ export class AuthService {
     };
   }
 
-  async getNewTokens(dto: RefreshTokenDto) {
+  /**
+   * Get new tokens
+   *
+   * @param dto
+   */
+  async getNewTokens(dto: RefreshTokenDto): Promise<AuthReturnDto> {
     const result = await this.authUtil.verify(dto.refreshToken);
 
     if (!result) throw new UnauthorizedException('Invalid refresh token.');
@@ -68,6 +84,11 @@ export class AuthService {
     };
   }
 
+  /**
+   *
+   * @param userId
+   * @private
+   */
   private async generateTokens(userId: number) {
     const data = { id: userId };
 
@@ -77,7 +98,11 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  // TODO: try to create type or interface
+  /**
+   *
+   * @param user
+   * @private
+   */
   private returnUserFields(user: User) {
     return {
       id: user.id,
@@ -85,6 +110,12 @@ export class AuthService {
     };
   }
 
+  /**
+   * Validate user by email
+   *
+   * @param dto
+   * @private
+   */
   private async validateUser(dto: AuthDto) {
     const user = await this.prisma.user.findUnique({
       where: {

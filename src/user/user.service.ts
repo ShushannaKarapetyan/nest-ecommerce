@@ -12,6 +12,7 @@ export class UserService {
 
   /**
    * Get user by id
+   *
    * @param id
    * @param selectObject
    */
@@ -79,7 +80,7 @@ export class UserService {
    * @param userId
    * @param productId
    */
-  async toggleFavorite(userId: number, productId: number) {
+  async toggleFavorite(userId: number, productId: number): Promise<{ message: string }> {
     const user = await this.getById(userId);
 
     if (!user) throw new NotFoundException('User not found.');

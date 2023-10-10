@@ -1,33 +1,46 @@
-import { Body, Controller, HttpCode, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto/auth.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { Auth } from './decorators/auth.decorator';
+import { AuthReturnDto } from './dto/auth.return.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {
   }
 
+  /**
+   * User registration
+   *
+   * @param dto
+   */
   @UsePipes(new ValidationPipe())
-  @HttpCode(201)
   @Post('register')
-  async register(@Body() dto: AuthDto) {
+  async register(@Body() dto: AuthDto): Promise<AuthReturnDto> {
     return this.authService.register(dto);
   }
 
+  /**
+   * User login
+   *
+   * @param dto
+   */
   @UsePipes(new ValidationPipe())
-  @HttpCode(200)
   @Post('login')
-  async login(@Body() dto: AuthDto) {
+  async login(@Body() dto: AuthDto): Promise<AuthReturnDto> {
     return this.authService.login(dto);
   }
 
+  /**
+   * Get new access and refresh tokens
+   *
+   * @param dto
+   */
   @Auth()
   @UsePipes(new ValidationPipe())
-  @HttpCode(200)
   @Post('access-token')
-  async getNewTokens(@Body() dto: RefreshTokenDto) {
+  async getNewTokens(@Body() dto: RefreshTokenDto): Promise<AuthReturnDto> {
     return this.authService.getNewTokens(dto);
   }
 }

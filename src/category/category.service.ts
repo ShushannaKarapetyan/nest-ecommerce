@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { returnCategoryObject } from './return-category.object';
 import { Category } from '@prisma/client';
 import { CategoryDto } from './dto/category.dto';
+import { GetCategoryDto } from './dto/get.category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -12,7 +13,7 @@ export class CategoryService {
   /**
    * Get all categories
    */
-  async getAll(): Promise<Category[]> {
+  async getAll(): Promise<GetCategoryDto[]> {
     return this.prisma.category.findMany({
       orderBy: {
         createdAt: 'desc',
@@ -26,14 +27,12 @@ export class CategoryService {
    *
    * @param id
    */
-  async getById(id: number): Promise<Category> {
+  async getById(id: number): Promise<GetCategoryDto> {
     const category = await this.prisma.category.findUnique({
       where: {
         id,
       },
-      select: {
-        ...returnCategoryObject,
-      },
+      select: returnCategoryObject,
     });
 
     if (!category) {

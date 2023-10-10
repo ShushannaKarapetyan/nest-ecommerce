@@ -2,6 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { ReviewDto } from './dto/review.dto';
 import { returnReviewObject } from './return-review.object';
+import { GetReviewsDto } from './dto/get-reviews.dto';
+import { Review } from '@prisma/client';
+import { AverageDto } from './dto/average.dto';
 
 @Injectable()
 export class ReviewService {
@@ -11,7 +14,7 @@ export class ReviewService {
   /**
    * Get all reviews
    */
-  async getAll() {
+  async getAll(): Promise<GetReviewsDto[]> {
     return this.prisma.review.findMany({
       orderBy: {
         createdAt: 'desc',
@@ -27,7 +30,7 @@ export class ReviewService {
    * @param productId
    * @param dto
    */
-  async create(userId: number, productId: number, dto: ReviewDto) {
+  async create(userId: number, productId: number, dto: ReviewDto): Promise<Review> {
     return this.prisma.review.create({
       data: {
         ...dto,
@@ -50,7 +53,7 @@ export class ReviewService {
    *
    * @param productId
    */
-  async getAverageByProductId(productId: number) {
+  async getAverageByProductId(productId: number): Promise<AverageDto> {
     return this.prisma.review.aggregate({
       where: {
         productId,

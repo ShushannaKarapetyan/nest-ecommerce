@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
   Param,
   Post,
   Put,
@@ -14,52 +13,88 @@ import {
 import { ProductService } from './product.service';
 import { ProductDto } from './dto/product.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
-import { GetProductsDto } from './dto/get-products.dto';
+import { ProductsFilterDto } from './dto/products.filter.dto';
+import { GetProductsDto } from './dto/get.products.dto';
+import { SimilarProductsDto } from './dto/similar.products.dto';
+import { Product } from '@prisma/client';
 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {
   }
 
+  /**
+   * Get all products
+   */
   @UsePipes(new ValidationPipe())
   @Get()
-  async getAll(@Query() queryDto: GetProductsDto) {
+  async getAll(@Query() queryDto: ProductsFilterDto): Promise<GetProductsDto> {
     return this.productService.getAll(queryDto);
   }
 
+  /**
+   * Get product by id
+   *
+   * @param id
+   */
   @Get(':id')
   async getById(@Param('id') id: string) {
     return this.productService.getById(+id);
   }
 
+  /**
+   * Get product by slug
+   *
+   * @param slug
+   */
   @Get('by-slug/:slug')
   async getBySlug(@Param('slug') slug: string) {
     return this.productService.getBySlug(slug);
   }
 
+  /**
+   * Get similar products
+   *
+   * @param id
+   */
   @Get('similar/:id')
-  async getSimilar(@Param('id') id: string) {
+  async getSimilar(@Param('id') id: string): Promise<SimilarProductsDto[]> {
     return this.productService.getSimilar(+id);
   }
 
+  /**
+   * Create product
+   *
+   * @param dto
+   */
   @Auth()
   @UsePipes(new ValidationPipe())
-  @HttpCode(201)
   @Post()
-  async create(@Body() dto: ProductDto) {
+  async create(@Body() dto: ProductDto): Promise<Product> {
     return this.productService.create(dto);
   }
 
+  /**
+   * Update product
+   *
+   * @param id
+   * @param dto
+   */
   @UsePipes(new ValidationPipe())
   @Auth()
   @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: ProductDto) {
+  async update(@Param('id') id: string, @Body() dto: ProductDto): Promise<Product> {
     return this.productService.update(+id, dto);
   }
 
+  /**
+   * Delete product
+   *
+   * @param id
+   */
   @Auth()
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id') id: string): Promise<Product> {
     return this.productService.delete(+id);
   }
 }

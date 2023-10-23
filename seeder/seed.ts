@@ -1,6 +1,7 @@
 import { PrismaClient, Product } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import { faker } from '@faker-js/faker';
+import { RoleEnum } from '../src/role/enums/role-enum';
 
 dotenv.config();
 
@@ -41,7 +42,7 @@ async function createProducts(quantity: number) {
               text: faker.lorem.paragraph(),
               user: {
                 connect: {
-                  id: +userId,
+                  id: +userId.id,
                 },
               },
             },
@@ -56,9 +57,24 @@ async function createProducts(quantity: number) {
   console.log(`Created ${products.length} products.`);
 }
 
+async function createRoles() {
+  const roles: RoleEnum[] = Object.values(RoleEnum);
+
+  for (const role of roles) {
+    await prisma.role.create({
+      data: {
+        name: role,
+      },
+    });
+  }
+
+  console.log('Roles are created.');
+}
+
 async function main() {
   console.log('Seeding started...');
 
+  await createRoles();
   await createProducts(1000);
 }
 

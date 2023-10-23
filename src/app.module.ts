@@ -12,9 +12,20 @@ import { CategoryModule } from './category/category.module';
 import { OrderModule } from './order/order.module';
 import { PaginationModule } from './pagination/pagination.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), AuthModule, UserModule, ProductModule, ReviewModule, CategoryModule, OrderModule, PaginationModule, StatisticsModule],
+  imports: [ConfigModule.forRoot(),
+    AuthModule,
+    UserModule,
+    ProductModule,
+    ReviewModule,
+    CategoryModule,
+    OrderModule,
+    PaginationModule,
+    StatisticsModule,
+    RoleModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService, JwtStrategy],
 })

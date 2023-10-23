@@ -4,6 +4,7 @@ import { PrismaService } from '../prisma.service';
 import { returnUserObject } from './return-user.object';
 import { hash } from 'argon2';
 import { Prisma, User } from '@prisma/client';
+import { Role } from './types/role';
 
 @Injectable()
 export class UserService {
@@ -60,6 +61,29 @@ export class UserService {
 
     const user = await this.getById(id);
 
+    // check if the roles exist with the given IDs
+    const roleExists = await this.prisma.role.findMany({
+      where: {
+        id: {
+          in: dto.roles,
+        },
+      },
+    });
+
+    if (!roleExists.length) {
+      throw new BadRequestException('Roles are not found.');
+    }
+
+    const roles: Array<Role> = [];
+
+    for (const role of roleExists) {
+      roles.push({
+        assignedBy: user.name,
+        assignedAt: new Date(),
+        roleId: role.id,
+      });
+    }
+
     return this.prisma.user.update({
       where: {
         id,
@@ -67,9 +91,12 @@ export class UserService {
       data: {
         email: dto.email,
         name: dto.name,
-        avatarPath: dto.avatarPath,
-        phone: dto.phone,
+        avatarPath: dto.avatarPath ?? user.avatarPath,
+        phone: dto.phone ?? user.phone,
         password: dto.password ? await hash(dto.password) : user.password,
+        roles: {
+          create: roles,
+        },
       },
     });
   }

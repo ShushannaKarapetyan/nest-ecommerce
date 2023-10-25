@@ -1,9 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { Category } from '@prisma/client';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { CategoryDto } from './dto/category.dto';
 import { GetCategoryDto } from './dto/get.category.dto';
+import { Roles } from '../decorators/roles.decorator';
+import { RolesGuard } from '../guards/roles.guard';
+import { RoleEnum } from '../role/enums/role-enum';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('categories')
 export class CategoryController {
@@ -32,7 +36,8 @@ export class CategoryController {
    *
    * @param dto
    */
-  @Auth()
+  @Roles([RoleEnum.OWNER, RoleEnum.ADMIN])
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UsePipes(new ValidationPipe())
   @Post()
   async create(@Body() dto: CategoryDto): Promise<Category> {
@@ -45,7 +50,8 @@ export class CategoryController {
    * @param id
    * @param dto
    */
-  @Auth()
+  @Roles([RoleEnum.OWNER, RoleEnum.ADMIN])
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UsePipes(new ValidationPipe())
   @Put(':id')
   async update(@Param('id') id: string, @Body() dto: CategoryDto): Promise<Category> {
@@ -57,7 +63,8 @@ export class CategoryController {
    *
    * @param id
    */
-  @Auth()
+  @Roles([RoleEnum.OWNER, RoleEnum.ADMIN])
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<Category> {
     return this.categoryService.delete(+id);

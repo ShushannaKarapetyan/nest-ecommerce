@@ -24,6 +24,7 @@ export class UserService {
       },
       select: {
         ...returnUserObject,
+        roles: {},
         favorites: {
           select: {
             id: true,

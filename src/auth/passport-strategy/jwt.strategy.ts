@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma.service';
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
+import { returnUserObject } from '../../user/return-user.object';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -16,6 +17,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate({ id }): Promise<Pick<User, 'id'>> {
-    return this.prisma.user.findUnique({ where: { id: +id } });
+    return this.prisma.user.findUnique({
+      where: { id: +id },
+      select: {
+        ...returnUserObject,
+        roles: {
+          select: {
+            role: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }

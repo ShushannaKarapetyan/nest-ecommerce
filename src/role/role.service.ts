@@ -12,6 +12,18 @@ export class RoleService {
    * Get roles
    */
   async getAll() {
+    // return this.prisma.role.findMany({
+    //   where: {
+    //     users: {
+    //       some: {
+    //         user: {
+    //           id: 3,
+    //         },
+    //       },
+    //     }
+    //   }
+    // });
+
     return this.prisma.role.findMany({
       orderBy: {
         createdAt: 'desc',

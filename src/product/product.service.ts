@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { returnProductFullObject, returnProductObject } from './return-product.object';
 import { ProductDto } from './dto/product.dto';
@@ -86,9 +86,7 @@ export class ProductService {
       select: returnProductFullObject,
     });
 
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
+    if (!product) throw new NotFoundException('Product not found');
 
     return product;
   }
@@ -142,12 +140,20 @@ export class ProductService {
   }
 
   /**
-   * Create product
+   * Create a product
    *
    * @param dto
    */
   async create(dto: ProductDto): Promise<Product> {
     const { name, description, price, quantity, images, categoryId } = dto;
+
+    const product = await this.prisma.product.findUnique({
+      where: {
+        name,
+      },
+    });
+
+    if (product) throw new BadRequestException('Product already exists.');
 
     return this.prisma.product.create({
       data: {
@@ -167,23 +173,18 @@ export class ProductService {
   }
 
   /**
-   * Update product
+   * Update the product
    *
    * @param id
    * @param dto
    */
   async update(id: number, dto: ProductDto): Promise<Product> {
     const product = await this.getById(id);
-
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
-
     const { name, description, price, quantity, images, categoryId } = dto;
 
     return this.prisma.product.update({
       where: {
-        id,
+        id: product.id,
       },
       data: {
         name,
@@ -202,14 +203,16 @@ export class ProductService {
   }
 
   /**
-   * Delete product
+   * Delete the product
    *
    * @param id
    */
   async delete(id: number): Promise<Product> {
+    const product = await this.getById(id);
+
     return this.prisma.product.delete({
       where: {
-        id,
+        id: product.id,
       },
     });
   }

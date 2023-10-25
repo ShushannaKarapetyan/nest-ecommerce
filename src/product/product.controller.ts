@@ -6,17 +6,20 @@ import {
   Param,
   Post,
   Put,
-  Query,
+  Query, UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductDto } from './dto/product.dto';
-import { Auth } from '../auth/decorators/auth.decorator';
 import { ProductsFilterDto } from './dto/products.filter.dto';
 import { GetProductsDto } from './dto/get.products.dto';
 import { SimilarProductsDto } from './dto/similar.products.dto';
 import { Product } from '@prisma/client';
+import { Roles } from '../decorators/roles.decorator';
+import { RoleEnum } from '../role/enums/role-enum';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from '../guards/roles.guard';
 
 @Controller('products')
 export class ProductController {
@@ -63,11 +66,12 @@ export class ProductController {
   }
 
   /**
-   * Create product
+   * Create a product
    *
    * @param dto
    */
-  @Auth()
+  @Roles([RoleEnum.OWNER, RoleEnum.ADMIN])
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UsePipes(new ValidationPipe())
   @Post()
   async create(@Body() dto: ProductDto): Promise<Product> {
@@ -80,8 +84,9 @@ export class ProductController {
    * @param id
    * @param dto
    */
+  @Roles([RoleEnum.OWNER, RoleEnum.ADMIN])
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UsePipes(new ValidationPipe())
-  @Auth()
   @Put(':id')
   async update(@Param('id') id: string, @Body() dto: ProductDto): Promise<Product> {
     return this.productService.update(+id, dto);
@@ -92,7 +97,8 @@ export class ProductController {
    *
    * @param id
    */
-  @Auth()
+  @Roles([RoleEnum.OWNER, RoleEnum.ADMIN])
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<Product> {
     return this.productService.delete(+id);

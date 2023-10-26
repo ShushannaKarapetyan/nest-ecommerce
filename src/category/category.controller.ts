@@ -1,7 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { Category } from '@prisma/client';
-import { Auth } from '../auth/decorators/auth.decorator';
 import { CategoryDto } from './dto/category.dto';
 import { GetCategoryDto } from './dto/get.category.dto';
 import { Roles } from '../decorators/roles.decorator';
@@ -25,7 +24,6 @@ export class CategoryController {
   /**
    * Get all categories
    */
-  @Auth()
   @Get(':id')
   async getById(@Param('id') id: string): Promise<GetCategoryDto> {
     return this.categoryService.getById(+id);

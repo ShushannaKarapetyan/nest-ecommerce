@@ -1,8 +1,11 @@
-import { Body, Controller, Get, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
-import { Auth } from '../auth/decorators/auth.decorator';
 import { RoleDto } from './dto/role.dto';
+import { Roles } from '../decorators/roles.decorator';
+import { RoleEnum } from './enums/role-enum';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from '../guards/roles.guard';
 
 @Controller('roles')
 export class RoleController {
@@ -12,7 +15,8 @@ export class RoleController {
   /**
    * Get roles
    */
-  @Auth()
+  @Roles([RoleEnum.OWNER, RoleEnum.ADMIN])
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get()
   async getAll() {
     return this.roleService.getAll();
@@ -23,7 +27,8 @@ export class RoleController {
    *
    * @param dto
    */
-  @Auth()
+  @Roles([RoleEnum.OWNER, RoleEnum.ADMIN])
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UsePipes(new ValidationPipe())
   @Post()
   async create(@Body() dto: CreateRoleDto): Promise<RoleDto> {

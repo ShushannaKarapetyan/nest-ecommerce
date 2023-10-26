@@ -8,15 +8,27 @@ export class OrderService {
   }
 
   /**
-   * Get all orders
+   * Get orders of the logged-in user
    *
    * @param userId
    */
-  async getAll(userId: number): Promise<Order[]> {
+  async getByUserId(userId: number): Promise<Order[]> {
     return this.prisma.order.findMany({
       where: {
         userId,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  /**
+   * Get all orders
+   *
+   */
+  async getAll(): Promise<Order[]> {
+    return this.prisma.order.findMany({
       orderBy: {
         createdAt: 'desc',
       },

@@ -45,7 +45,7 @@ export class UserService {
   }
 
   /**
-   * Update profile
+   * Update the profile
    *
    * @param id
    * @param dto
@@ -103,7 +103,7 @@ export class UserService {
   }
 
   /**
-   * Toggle favorite product
+   * Toggle the favorite product
    *
    * @param userId
    * @param productId
